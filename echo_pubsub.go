@@ -2,7 +2,6 @@ package echo
 
 import (
 	"context"
-	"log"
 	"sync"
 )
 
@@ -10,21 +9,19 @@ var channelPubSub = make(map[string]*pubSub)
 var channelMt sync.RWMutex
 
 //pub string data to channel
-func Pub(channel string, val string) {
+func Pub(channel string, val string) error {
 	if pub, ok := channelPubSub[channel]; ok {
-		pub.Pub(val)
-	} else {
-		log.Println(noSubscriber)
+		return pub.Pub(val)
 	}
+	return errNoSubscriber
 }
 
 //pub json encoded data
-func PubJson(channel string, val interface{}) {
+func PubJson(channel string, val interface{}) error {
 	if pub, ok := channelPubSub[channel]; ok {
-		pub.PubJson(val)
-	} else {
-		log.Println(noSubscriber)
+		return pub.PubJson(val)
 	}
+	return errNoSubscriber
 }
 
 //sub to some channel and take action

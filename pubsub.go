@@ -3,7 +3,6 @@ package echo
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"sync"
 	"time"
 
@@ -25,27 +24,27 @@ type pubSub struct {
 	Rmt   sync.RWMutex
 }
 
-func (pb *pubSub) PubJson(data interface{}) {
+func (pb *pubSub) PubJson(data interface{}) error {
 	val, err := json.Marshal(data)
 	if err != nil {
-		log.Panic(errInvalidJson)
+		return err
 	}
-	pb.Pub(string(val))
+	return pb.Pub(string(val))
 }
 
 //publish data
-func (pb *pubSub) Pub(data string) {
+func (pb *pubSub) Pub(data string) error {
 	pb.Rmt.Lock()
 	defer pb.Rmt.Unlock()
 	if pb.Pools == nil {
-		log.Println(noSubscriber)
-		return
+		return errNoSubscriber
 	}
 	for _, pool := range pb.Pools {
 		if cap(pool) > len(pool) {
 			pool <- data
 		}
 	}
+	return nil
 }
 
 //register subscriber with id and sub
