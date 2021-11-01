@@ -10,6 +10,15 @@ import (
 	"github.com/johnhaha/hakit/hadata"
 )
 
+type SubCtx struct {
+	Data string
+}
+
+func (c *SubCtx) Parser(data interface{}) error {
+	err := json.Unmarshal([]byte(c.Data), data)
+	return err
+}
+
 //pub sub element
 type pubSub struct {
 	Pools map[string]chan string
@@ -40,7 +49,7 @@ func (pb *pubSub) Pub(data string) {
 }
 
 //register subscriber with id and sub
-func (pb *pubSub) Sub(ctx context.Context, consumer func(string)) {
+func (pb *pubSub) Sub(ctx context.Context, consumer func(SubCtx)) {
 	pool := make(chan string, 2)
 	id := hadata.GetStringFromInt(int(time.Now().Unix()))
 	if pb.Pools == nil {
@@ -61,7 +70,8 @@ func (pb *pubSub) Sub(ctx context.Context, consumer func(string)) {
 	for {
 		select {
 		case data := <-pool:
-			go consumer(data)
+			ctx := SubCtx{Data: data}
+			go consumer(ctx)
 		case <-ctx.Done():
 			return
 		}

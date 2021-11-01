@@ -28,7 +28,7 @@ func PubJson(channel string, val interface{}) {
 }
 
 //sub to some channel and take action
-func Sub(ctx context.Context, channel string, consumer func(string)) {
+func Sub(ctx context.Context, channel string, consumer func(SubCtx)) {
 	channelMt.Lock()
 	if _, ok := channelPubSub[channel]; !ok {
 		channelPubSub[channel] = &pubSub{}
