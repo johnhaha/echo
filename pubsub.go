@@ -49,7 +49,7 @@ func (pb *pubSub) Pub(data string) {
 }
 
 //register subscriber with id and sub
-func (pb *pubSub) Sub(ctx context.Context, consumer func(SubCtx)) {
+func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx)) {
 	pool := make(chan string, 2)
 	id := hadata.GetStringFromInt(int(time.Now().Unix()))
 	if pb.Pools == nil {
@@ -71,7 +71,7 @@ func (pb *pubSub) Sub(ctx context.Context, consumer func(SubCtx)) {
 		select {
 		case data := <-pool:
 			ctx := SubCtx{Data: data}
-			go consumer(ctx)
+			go consumer(&ctx)
 		case <-ctx.Done():
 			return
 		}
