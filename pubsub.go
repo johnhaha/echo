@@ -3,6 +3,7 @@ package echo
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"sync"
 	"time"
 
@@ -69,6 +70,7 @@ func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx)) {
 	for {
 		select {
 		case data := <-pool:
+			log.Printf("💨 get echo: %v", data)
 			ctx := SubCtx{Data: data}
 			go consumer(&ctx)
 		case <-ctx.Done():
