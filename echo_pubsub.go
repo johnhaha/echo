@@ -33,3 +33,26 @@ func Sub(ctx context.Context, channel string, consumer func(*SubCtx)) {
 	channelMt.Unlock()
 	channelPubSub[channel].Sub(ctx, consumer)
 }
+
+type Suber struct {
+	SubMap map[string]func(*SubCtx)
+}
+
+func NewSuber() *Suber {
+	return &Suber{}
+}
+
+func (s *Suber) Add(channel string, consumer func(*SubCtx)) {
+	if s.SubMap == nil {
+		s.SubMap = make(map[string]func(*SubCtx))
+	}
+	s.SubMap[channel] = consumer
+
+}
+
+func (s *Suber) Sub(ctx context.Context) {
+	for k, v := range s.SubMap {
+		go Sub(ctx, k, v)
+	}
+	<-ctx.Done()
+}
