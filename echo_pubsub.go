@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+//pubsub multi channel instance for echo to work on
 var channelPubSub = make(map[string]*pubSub)
 var channelMt sync.RWMutex
 

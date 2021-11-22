@@ -19,8 +19,9 @@ func (c *SubCtx) Parser(data interface{}) error {
 	return err
 }
 
-//pub sub element
+//pub sub staleless single block
 type pubSub struct {
+	//use map chan to support multiple subscription
 	Pools map[string]chan string
 	Rmt   sync.RWMutex
 }
@@ -50,7 +51,8 @@ func (pb *pubSub) Pub(data string) error {
 
 //register subscriber with id and sub
 func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx)) {
-	pool := make(chan string, 2)
+	//set buffer count to 10
+	pool := make(chan string, 10)
 	id := hadata.GetStringFromInt(int(time.Now().Unix()))
 	if pb.Pools == nil {
 		pb.Pools = map[string]chan string{id: pool}

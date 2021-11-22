@@ -1,7 +1,7 @@
 # echo
 
 echo is a golang runtime message tool
-It's currently support message pub/sub
+currently support pub/sub
 
 ## Install
 
@@ -27,4 +27,12 @@ echo.PubJson(CHANNEL,JSON)
 
 ```go
 echo.Sub(CONTEXT,CHANNEL,HANDLER)
+```
+
+## use suber to make multi sub
+
+```go
+suber := echo.NewSuber()
+suber.Add(CHANNEL,CONSUMER)
+suber.Sub(ctx)
 ```
