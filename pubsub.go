@@ -3,10 +3,8 @@ package echo
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"sync"
-	"time"
-
-	"github.com/johnhaha/hakit/hadata"
 )
 
 type SubCtx struct {
@@ -49,19 +47,15 @@ func (pb *pubSub) Pub(data string) error {
 }
 
 //register subscriber with id and sub
-func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx)) {
-	//set buffer count to 10
-	pool := make(chan string, 10)
-	id := hadata.GetStringFromInt(int(time.Now().Unix()))
+func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx), buffer int, count int) {
+	pool := make(chan string, buffer)
+	pb.Rmt.Lock()
+	id := strconv.Itoa(count)
 	if pb.Pools == nil {
-		pb.Pools = map[string]chan string{id: pool}
-	} else {
-		go func() {
-			pb.Rmt.Lock()
-			defer pb.Rmt.Unlock()
-			pb.Pools[id] = pool
-		}()
+		pb.Pools = make(map[string]chan string)
 	}
+	pb.Pools[id] = pool
+	pb.Rmt.Unlock()
 	defer func() {
 		pb.Rmt.Lock()
 		defer pb.Rmt.Unlock()

@@ -2,12 +2,15 @@ package echo
 
 import (
 	"context"
+	"log"
 	"sync"
 )
 
 //pubsub multi channel instance for echo to work on
 var channelPubSub = make(map[string]*pubSub)
 var channelMt sync.RWMutex
+var buffer = 6
+var jobCount int = 0
 
 //pub string data to channel
 func Pub(channel string, val string) error {
@@ -28,11 +31,16 @@ func PubJson(channel string, val interface{}) error {
 //sub to some channel and take action
 func Sub(ctx context.Context, channel string, consumer func(*SubCtx)) {
 	channelMt.Lock()
+	jobCount++
+	log.Println("💨 sub ok, current job count is", jobCount)
 	if _, ok := channelPubSub[channel]; !ok {
 		channelPubSub[channel] = &pubSub{}
 	}
 	channelMt.Unlock()
-	channelPubSub[channel].Sub(ctx, consumer)
+	//set buffer to 6
+	channelPubSub[channel].Sub(ctx, consumer, buffer, jobCount)
+	jobCount--
+	log.Println("💨 sub finished, current job count is", jobCount)
 }
 
 type Suber struct {
@@ -56,4 +64,8 @@ func (s *Suber) Sub(ctx context.Context) {
 		go Sub(ctx, k, v)
 	}
 	<-ctx.Done()
+}
+
+func SetBuffer(count int) {
+	buffer = count
 }
