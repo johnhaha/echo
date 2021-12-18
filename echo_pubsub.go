@@ -20,6 +20,14 @@ func Pub(channel string, val string) error {
 	return errNoSubscriber
 }
 
+//pub bool data to channel
+func PubBool(channel string, val bool) error {
+	if pub, ok := channelPubSub[channel]; ok {
+		return pub.PubBool(val)
+	}
+	return errNoSubscriber
+}
+
 //pub json encoded data
 func PubJson(channel string, val interface{}) error {
 	if pub, ok := channelPubSub[channel]; ok {

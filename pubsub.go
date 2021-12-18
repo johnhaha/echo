@@ -7,15 +7,6 @@ import (
 	"sync"
 )
 
-type SubCtx struct {
-	Data string
-}
-
-func (c *SubCtx) Parser(data interface{}) error {
-	err := json.Unmarshal([]byte(c.Data), data)
-	return err
-}
-
 //pub sub staleless single block
 type pubSub struct {
 	//use map chan to support multiple subscription
@@ -46,6 +37,25 @@ func (pb *pubSub) Pub(data string) error {
 	return nil
 }
 
+//publish data
+func (pb *pubSub) PubBool(data bool) error {
+	pb.Rmt.Lock()
+	defer pb.Rmt.Unlock()
+	if pb.Pools == nil {
+		return errNoSubscriber
+	}
+	for _, pool := range pb.Pools {
+		if cap(pool) > len(pool) {
+			s := BoolFalse
+			if data {
+				s = BoolTrue
+			}
+			pool <- s
+		}
+	}
+	return nil
+}
+
 //register subscriber with id and sub
 func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx), buffer int, count int) {
 	pool := make(chan string, buffer)
@@ -65,7 +75,7 @@ func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx), buffer int, c
 	for {
 		select {
 		case data := <-pool:
-			ctx := SubCtx{Data: data}
+			ctx := SubCtx{Value: *newValue(data)}
 			go consumer(&ctx)
 		case <-ctx.Done():
 			return
