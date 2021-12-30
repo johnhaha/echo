@@ -47,8 +47,12 @@ func Sub(ctx context.Context, channel string, consumer func(*SubCtx)) {
 	channelMt.Unlock()
 	//set buffer to 6
 	channelPubSub[channel].Sub(ctx, consumer, buffer, jobCount)
-	jobCount--
-	log.Println("💨 sub finished, current job count is", jobCount)
+	defer func() {
+		channelMt.Lock()
+		defer channelMt.Unlock()
+		jobCount--
+		log.Println("💨 sub finished, current job count is", jobCount)
+	}()
 }
 
 type Suber struct {

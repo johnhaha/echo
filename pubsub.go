@@ -75,8 +75,8 @@ func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx), buffer int, c
 	for {
 		select {
 		case data := <-pool:
-			ctx := SubCtx{Value: *newValue(data)}
-			go consumer(&ctx)
+			subCtx := SubCtx{Value: *newValue(data)}
+			go consumer(&subCtx)
 		case <-ctx.Done():
 			return
 		}
