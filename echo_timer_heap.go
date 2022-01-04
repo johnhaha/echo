@@ -1,6 +1,7 @@
 package echo
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -54,29 +55,32 @@ func SetTimerHeapHandler(channel string, handler JobHandler) {
 }
 
 //run timer heap, this will block
-func RunTimerHeap() {
+func RunTimerHeap(ctx context.Context) {
 	sleeper := NewSleeper(time.Second*5, time.Second*300)
-	for {
-		now := time.Now().Unix()
-		heapMtx.RLock()
-		recent := echoTimerHeap.Recent
-		heapMtx.RUnlock()
-		if recent == 0 {
-			sleeper.Sleep()
-			continue
+	go func() {
+		for {
+			now := time.Now().Unix()
+			heapMtx.RLock()
+			recent := echoTimerHeap.Recent
+			heapMtx.RUnlock()
+			if recent == 0 {
+				sleeper.Sleep()
+				continue
+			}
+			if recent-now > 0 {
+				time.Sleep(time.Second * time.Duration(recent-now))
+			}
+			heapMtx.Lock()
+			x, err := echoTimerHeap.Extract()
+			heapMtx.Unlock()
+			if err != nil {
+				continue
+			}
+			go echoTimerHeap.Handle(x.EventType, &SubCtx{
+				Value: x.Value,
+			})
+			sleeper.Reset()
 		}
-		if recent-now > 0 {
-			time.Sleep(time.Second * time.Duration(recent-now))
-		}
-		heapMtx.Lock()
-		x, err := echoTimerHeap.Extract()
-		heapMtx.Unlock()
-		if err != nil {
-			continue
-		}
-		go echoTimerHeap.Handle(x.EventType, &SubCtx{
-			Value: x.Value,
-		})
-		sleeper.Reset()
-	}
+	}()
+	<-ctx.Done()
 }
