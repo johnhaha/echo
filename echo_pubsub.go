@@ -56,7 +56,7 @@ func Sub(ctx context.Context, channel string, consumer func(*SubCtx)) {
 }
 
 type Suber struct {
-	SubMap map[string]func(*SubCtx)
+	JobRouter
 }
 
 func NewSuber() *Suber {
@@ -64,15 +64,11 @@ func NewSuber() *Suber {
 }
 
 func (s *Suber) Add(channel string, consumer func(*SubCtx)) {
-	if s.SubMap == nil {
-		s.SubMap = make(map[string]func(*SubCtx))
-	}
-	s.SubMap[channel] = consumer
-
+	s.Set(channel, consumer)
 }
 
 func (s *Suber) Sub(ctx context.Context) {
-	for k, v := range s.SubMap {
+	for k, v := range s.Handlers {
 		go Sub(ctx, k, v)
 	}
 	<-ctx.Done()
