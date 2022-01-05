@@ -27,11 +27,13 @@ func NewTimerHeap() *TimerEventHeap {
 func (h *TimerEventHeap) InitEvent(event []TimerEvent) {
 	h.Event = event
 	heap.Init(h)
+	h.Update()
 }
 
 func (h *TimerEventHeap) LoadMoreEvent(event []TimerEvent) {
 	h.Event = append(h.Event, event...)
 	heap.Init(h)
+	h.Update()
 }
 
 func (h *TimerEventHeap) Insert(event TimerEvent) {
