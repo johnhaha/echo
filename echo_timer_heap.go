@@ -10,32 +10,32 @@ var echoTimerHeap = NewTimerHeap()
 
 var heapMtx sync.RWMutex
 
-func addEventToTimerHeap(event TimerEvent) {
+func addEvent(event TimerEvent) {
 	heapMtx.Lock()
 	defer heapMtx.Unlock()
 	echoTimerHeap.Insert(event)
 }
 
 //add many event to timer heap, can be used in initializing heap data
-func AddManyEventToTimerHeap(event []TimerEvent) {
+func AddManyEvent(event []TimerEvent) {
 	heapMtx.Lock()
 	defer heapMtx.Unlock()
 	echoTimerHeap.LoadMoreEvent(event)
 }
 
 //add channel and data to timer heap
-func AddToTimerHeap(channel string, data string, time time.Time) {
+func AddToEvent(channel string, data string, time time.Time) {
 	v := newValue().SetValue(data)
 	event := TimerEvent{
 		Value:     *v,
 		EventType: channel,
 		Ts:        time.Unix(),
 	}
-	addEventToTimerHeap(event)
+	addEvent(event)
 }
 
 //add json data to timer heap
-func AddJsonDataToTimerHeap(channel string, data interface{}, time time.Time) error {
+func AddJsonDataToEvent(channel string, data interface{}, time time.Time) error {
 	v := newValue()
 	err := v.SetJson(data)
 	if err != nil {
@@ -46,17 +46,17 @@ func AddJsonDataToTimerHeap(channel string, data interface{}, time time.Time) er
 		EventType: channel,
 		Ts:        time.Unix(),
 	}
-	addEventToTimerHeap(event)
+	addEvent(event)
 	return nil
 }
 
 //set timer heap handler
-func SetTimerHeapHandler(channel string, handler JobHandler) {
+func SetEventHandler(channel string, handler JobHandler) {
 	echoTimerHeap.Set(channel, handler)
 }
 
 //run timer heap, this will block
-func RunTimerHeap(ctx context.Context) {
+func RunEvent(ctx context.Context) {
 	sleeper := NewSleeper(time.Second*5, time.Second*300)
 	go func() {
 		for {
