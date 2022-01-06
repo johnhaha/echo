@@ -26,7 +26,7 @@ func PubQueue(channel string, data string) {
 }
 
 //pub json data to queue
-func PubJsonQueue(channel string, data interface{}) error {
+func PubQueueJson(channel string, data interface{}) error {
 	v := newValue()
 	err := v.SetJson(data)
 	if err != nil {
