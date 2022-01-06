@@ -1,6 +1,7 @@
 package echo
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -65,4 +66,18 @@ func (sleeper *Sleeper) Sleep() {
 
 func (sleeper *Sleeper) Reset() {
 	sleeper.Duration = sleeper.Step
+}
+
+type ChannelData struct {
+	Value
+	Channel string
+}
+
+func GetChannelDataFromJson(j string) (*ChannelData, error) {
+	var channelData ChannelData
+	err := json.Unmarshal([]byte(j), &channelData)
+	if err != nil {
+		return nil, err
+	}
+	return &channelData, nil
 }

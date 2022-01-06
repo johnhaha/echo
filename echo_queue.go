@@ -1,76 +1,41 @@
 package echo
 
-import (
-	"context"
-	"sync"
-)
+import "context"
 
-var channelQueue = make(map[string]*Queue)
+var queueBuffer = 10
 
-var channelQueueMtx sync.RWMutex
+var echoChannelQueue = NewChannelQueue(queueBuffer)
 
-type Streamer struct {
-	QueueHandler map[string]func(*SubCtx)
+func SetQueueBuffer(b int) {
+	queueBuffer = b
 }
 
-func NewStreamer() *Streamer {
-	return &Streamer{QueueHandler: make(map[string]func(*SubCtx))}
+//set queue handler
+func SetQueueHandler(channel string, handler JobHandler) {
+	echoChannelQueue.Set(channel, handler)
 }
 
-func (s *Streamer) Add(name string, handler JobHandler) {
-	channelQueueMtx.Lock()
-	defer channelQueueMtx.Unlock()
-	if _, ok := channelQueue[name]; ok {
-		return
-	}
-	queue := newQueue()
-	channelQueue[name] = queue
-	if s.QueueHandler == nil {
-		s.QueueHandler = make(map[string]func(*SubCtx))
-	}
-	s.QueueHandler[name] = handler
+//pub string data to queue
+func PubQueue(channel string, data string) {
+	echoChannelQueue.Pub(ChannelData{
+		Value: Value{
+			Data: data,
+		},
+		Channel: channel,
+	})
 }
 
-func (s *Streamer) Stream(ctx context.Context) {
-	for k, v := range channelQueue {
-		go v.Consume(ctx, s.QueueHandler[k])
+//pub json data to queue
+func PubJsonQueue(channel string, data interface{}) error {
+	v := newValue()
+	err := v.SetJson(data)
+	if err != nil {
+		return err
 	}
-	<-ctx.Done()
-}
-
-func PubQ(channel string, data string) {
-	channelQueueMtx.RLock()
-	defer channelQueueMtx.RUnlock()
-	if q, ok := channelQueue[channel]; ok {
-		q.Append(data)
-		return
-	}
-	queue := newQueue()
-	channelQueue[channel] = queue
-	queue.Append(data)
-}
-
-func PubBoolQ(channel string, data bool) {
-	channelQueueMtx.RLock()
-	defer channelQueueMtx.RUnlock()
-	if q, ok := channelQueue[channel]; ok {
-		q.AppendBool(data)
-		return
-	}
-	queue := newQueue()
-	channelQueue[channel] = queue
-	queue.AppendBool(data)
-}
-
-func PubJsonQ(channel string, data interface{}) error {
-	channelQueueMtx.RLock()
-	defer channelQueueMtx.RUnlock()
-	if q, ok := channelQueue[channel]; ok {
-		q.AppendJson(data)
-		return nil
-	}
-	queue := newQueue()
-	channelQueue[channel] = queue
-	queue.AppendJson(data)
+	echoChannelQueue.Pub(ChannelData{Channel: channel, Value: *v})
 	return nil
+}
+
+func ConsumeQueue(ctx context.Context) {
+	echoChannelQueue.Consume(ctx)
 }

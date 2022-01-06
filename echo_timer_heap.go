@@ -25,8 +25,9 @@ func AddManyEventToTimerHeap(event []TimerEvent) {
 
 //add channel and data to timer heap
 func AddToTimerHeap(channel string, data string, time time.Time) {
+	v := newValue().SetValue(data)
 	event := TimerEvent{
-		Value:     *newValue(data),
+		Value:     *v,
 		EventType: channel,
 		Ts:        time.Unix(),
 	}
@@ -35,7 +36,7 @@ func AddToTimerHeap(channel string, data string, time time.Time) {
 
 //add json data to timer heap
 func AddJsonDataToTimerHeap(channel string, data interface{}, time time.Time) error {
-	v := newValue("")
+	v := newValue()
 	err := v.SetJson(data)
 	if err != nil {
 		return err

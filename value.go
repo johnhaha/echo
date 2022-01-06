@@ -8,8 +8,8 @@ type Value struct {
 	Data string
 }
 
-func newValue(v string) *Value {
-	return &Value{Data: v}
+func newValue() *Value {
+	return &Value{}
 }
 
 func (v *Value) GetData() string {
@@ -25,16 +25,18 @@ func (v *Value) GetJsonData(data interface{}) error {
 	return err
 }
 
-func (v *Value) SetValue(data string) {
+func (v *Value) SetValue(data string) *Value {
 	v.Data = data
+	return v
 }
 
-func (v *Value) SetBool(data bool) {
+func (v *Value) SetBool(data bool) *Value {
 	s := BoolFalse
 	if data {
 		s = BoolTrue
 	}
 	v.Data = s
+	return v
 }
 
 func (v *Value) SetJson(data interface{}) error {
