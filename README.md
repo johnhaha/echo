@@ -6,7 +6,7 @@ currently support pub/sub
 ## Install
 
 ```bash
-go get github.com/johnhaha/echo@v0.1.2
+go get github.com/johnhaha/echo@v0.1.3
 ```
 
 ## Usage
