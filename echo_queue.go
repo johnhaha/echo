@@ -6,8 +6,10 @@ var queueBuffer = 10
 
 var echoChannelQueue = NewChannelQueue(queueBuffer)
 
+//🔥 this should be set before any queue usage
 func SetQueueBuffer(b int) {
 	queueBuffer = b
+	echoChannelQueue = NewChannelQueue(b)
 }
 
 //set queue handler
