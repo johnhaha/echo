@@ -8,6 +8,9 @@ var echoChannelQueue = NewChannelQueue(queueBuffer)
 
 //🔥 this should be set before any queue usage
 func SetQueueBuffer(b int) {
+	if len(echoChannelQueue.JobRouter.Handlers) > 0 {
+		panic("can not init after set router")
+	}
 	queueBuffer = b
 	echoChannelQueue = NewChannelQueue(b)
 }
