@@ -25,7 +25,7 @@ func AddManyEvent(event []TimerEvent) {
 
 //add channel and data to timer heap
 func AddToEvent(channel string, data string, time time.Time) {
-	v := newValue().SetValue(data)
+	v := NewValue().SetValue(data)
 	event := TimerEvent{
 		Value:     *v,
 		EventType: channel,
@@ -36,7 +36,7 @@ func AddToEvent(channel string, data string, time time.Time) {
 
 //add json data to timer heap
 func AddJsonDataToEvent(channel string, data interface{}, time time.Time) error {
-	v := newValue()
+	v := NewValue()
 	err := v.SetJson(data)
 	if err != nil {
 		return err

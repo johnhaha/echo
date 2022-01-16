@@ -32,7 +32,7 @@ func PubQueue(channel string, data string) {
 
 //pub json data to queue
 func PubQueueJson(channel string, data interface{}) error {
-	v := newValue()
+	v := NewValue()
 	err := v.SetJson(data)
 	if err != nil {
 		return err

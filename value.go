@@ -8,7 +8,7 @@ type Value struct {
 	Data string
 }
 
-func newValue() *Value {
+func NewValue() *Value {
 	return &Value{}
 }
 

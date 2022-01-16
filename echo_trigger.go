@@ -21,7 +21,7 @@ func SetTrigger(key string, handler JobHandler) {
 
 func FireTrigger(key string, data string) {
 	echoTrigger.Fire(ChannelData{
-		Value:   *newValue().SetValue(data),
+		Value:   *NewValue().SetValue(data),
 		Channel: key,
 	})
 }

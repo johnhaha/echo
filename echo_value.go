@@ -8,14 +8,14 @@ var valueMap = make(map[string]*Value)
 var valueMtx sync.RWMutex
 
 func SetValue(k string, v string) {
-	value := newValue().SetValue(v)
+	value := NewValue().SetValue(v)
 	valueMtx.Lock()
 	valueMap[k] = value
 	valueMtx.Unlock()
 }
 
 func SetBoolValue(k string, v bool) {
-	value := newValue()
+	value := NewValue()
 	value.SetBool(v)
 	valueMtx.Lock()
 	valueMap[k] = value
@@ -23,7 +23,7 @@ func SetBoolValue(k string, v bool) {
 }
 
 func SetJsonValue(k string, data interface{}) error {
-	value := newValue()
+	value := NewValue()
 	err := value.SetJson(data)
 	if err != nil {
 		return err
