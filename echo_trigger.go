@@ -15,6 +15,7 @@ func SetTriggerBuffer(buffer int) {
 	echoTrigger = NewTrigger(buffer)
 }
 
+// echo just one router
 func SetTrigger(key string, handler JobHandler) {
 	echoTrigger.Register(key, handler)
 }

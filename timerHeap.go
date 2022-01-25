@@ -11,13 +11,14 @@ type TimerEvent struct {
 	Value
 	EventType string
 	Ts        int64
+	Loop      int64
 }
 
 type TimerEventHeap struct {
 	Event  []TimerEvent
 	Recent int64
 	Remain int
-	JobRouter
+	// JobRouter
 }
 
 func NewTimerHeap() *TimerEventHeap {
@@ -46,6 +47,11 @@ func (h *TimerEventHeap) Extract() (TimerEvent, error) {
 	h.Update()
 	if x == nil {
 		return TimerEvent{}, errors.New("found none")
+	}
+	event := x.(TimerEvent)
+	if event.Loop > 0 {
+		event.Ts += event.Loop
+		h.Insert(event)
 	}
 	return x.(TimerEvent), nil
 }

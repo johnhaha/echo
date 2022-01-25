@@ -3,6 +3,7 @@ package echo
 import (
 	"encoding/json"
 	"errors"
+	"sync"
 	"time"
 )
 
@@ -21,11 +22,15 @@ const (
 )
 
 type JobHandler func(*SubCtx)
+
 type JobRouter struct {
 	Handlers map[string]JobHandler
+	mtx      sync.RWMutex
 }
 
 func (r *JobRouter) Set(channel string, handler JobHandler) {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
 	if r.Handlers == nil {
 		r.Handlers = make(map[string]JobHandler)
 	}
@@ -33,6 +38,8 @@ func (r *JobRouter) Set(channel string, handler JobHandler) {
 }
 
 func (r *JobRouter) Handle(channel string, ctx *SubCtx) error {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
 	if r.Handlers == nil {
 		return errors.New("no handlers found")
 	}

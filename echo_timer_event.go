@@ -10,32 +10,45 @@ var echoTimerHeap = NewTimerHeap()
 
 var heapMtx sync.RWMutex
 
-func addEvent(event TimerEvent) {
+// echo just one router
+func addTimerEvent(event TimerEvent) {
 	heapMtx.Lock()
 	defer heapMtx.Unlock()
 	echoTimerHeap.Insert(event)
 }
 
 //add many event to timer heap, can be used in initializing heap data
-func AddManyEvent(event []TimerEvent) {
+func AddManyTimerEvent(event []TimerEvent) {
 	heapMtx.Lock()
 	defer heapMtx.Unlock()
 	echoTimerHeap.LoadMoreEvent(event)
 }
 
 //add channel and data to timer heap
-func AddToEvent(channel string, data string, time time.Time) {
+func AddTimerEvent(channel string, data string, time time.Time) {
 	v := NewValue().SetValue(data)
 	event := TimerEvent{
 		Value:     *v,
 		EventType: channel,
 		Ts:        time.Unix(),
 	}
-	addEvent(event)
+	addTimerEvent(event)
+}
+
+//add loop timer event, loop in second
+func AddLoopTimerEvent(channel string, data string, time time.Time, loop int64) {
+	v := NewValue().SetValue(data)
+	event := TimerEvent{
+		Value:     *v,
+		EventType: channel,
+		Ts:        time.Unix(),
+		Loop:      loop,
+	}
+	addTimerEvent(event)
 }
 
 //add json data to timer heap
-func AddJsonDataToEvent(channel string, data interface{}, time time.Time) error {
+func AddJsonDataToTimerEvent(channel string, data interface{}, time time.Time) error {
 	v := NewValue()
 	err := v.SetJson(data)
 	if err != nil {
@@ -46,17 +59,17 @@ func AddJsonDataToEvent(channel string, data interface{}, time time.Time) error 
 		EventType: channel,
 		Ts:        time.Unix(),
 	}
-	addEvent(event)
+	addTimerEvent(event)
 	return nil
 }
 
 //set timer heap handler
-func SetEventHandler(channel string, handler JobHandler) {
-	echoTimerHeap.Set(channel, handler)
-}
+// func SetEventHandler(channel string, handler JobHandler) {
+// 	echoTimerHeap.Set(channel, handler)
+// }
 
 //run timer heap, this will block
-func RunEvent(ctx context.Context) {
+func StartTimerEventListener(ctx context.Context) {
 	sleeper := NewSleeper(time.Second*5, time.Second*300)
 	go func() {
 		for {
@@ -77,7 +90,7 @@ func RunEvent(ctx context.Context) {
 			if err != nil {
 				continue
 			}
-			go echoTimerHeap.Handle(x.EventType, &SubCtx{
+			go echoRouter.Handle(x.EventType, &SubCtx{
 				Value: x.Value,
 			})
 			sleeper.Reset()
