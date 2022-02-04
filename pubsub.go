@@ -2,28 +2,22 @@ package echo
 
 import (
 	"context"
-	"encoding/json"
-	"strconv"
 	"sync"
 )
 
 //pub sub staleless single block
-type pubSub struct {
+type PubSub[T any] struct {
 	//use map chan to support multiple subscription
-	Pools map[string]chan string
+	Pools map[string]chan T
 	Rmt   sync.RWMutex
 }
 
-func (pb *pubSub) PubJson(data any) error {
-	val, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-	return pb.Pub(string(val))
+func NewPubSub[T any]() *PubSub[T] {
+	return &PubSub[T]{}
 }
 
 //publish data
-func (pb *pubSub) Pub(data string) error {
+func (pb *PubSub[T]) Pub(data T) error {
 	pb.Rmt.Lock()
 	defer pb.Rmt.Unlock()
 	if pb.Pools == nil {
@@ -37,46 +31,25 @@ func (pb *pubSub) Pub(data string) error {
 	return nil
 }
 
-//publish data
-func (pb *pubSub) PubBool(data bool) error {
-	pb.Rmt.Lock()
-	defer pb.Rmt.Unlock()
-	if pb.Pools == nil {
-		return errNoSubscriber
-	}
-	for _, pool := range pb.Pools {
-		if cap(pool) > len(pool) {
-			s := BoolFalse
-			if data {
-				s = BoolTrue
-			}
-			pool <- s
-		}
-	}
-	return nil
-}
-
 //register subscriber with id and sub
-func (pb *pubSub) Sub(ctx context.Context, consumer func(*SubCtx), buffer int, count int) {
-	pool := make(chan string, buffer)
+func (pb *PubSub[T]) Sub(ctx context.Context, group string, buffer int, consumer func(T)) {
+	pool := make(chan T, buffer)
 	pb.Rmt.Lock()
-	id := strconv.Itoa(count)
 	if pb.Pools == nil {
-		pb.Pools = make(map[string]chan string)
+		pb.Pools = make(map[string]chan T)
 	}
-	pb.Pools[id] = pool
+	pb.Pools[group] = pool
 	pb.Rmt.Unlock()
 	defer func() {
 		pb.Rmt.Lock()
 		defer pb.Rmt.Unlock()
 		close(pool)
-		delete(pb.Pools, id)
+		delete(pb.Pools, group)
 	}()
 	for {
 		select {
 		case data := <-pool:
-			subCtx := SubCtx{Value: *NewValue().SetValue(data)}
-			go consumer(&subCtx)
+			go consumer(data)
 		case <-ctx.Done():
 			return
 		}
