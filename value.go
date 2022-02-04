@@ -61,3 +61,12 @@ func GetChannelDataFromJson(j string) (*ChannelData, error) {
 	}
 	return &channelData, nil
 }
+
+type GChannelData[T any] struct {
+	Value   T
+	Channel string
+}
+
+func NewGChannelData[T any](channel string, data T) GChannelData[T] {
+	return GChannelData[T]{Value: data, Channel: channel}
+}
