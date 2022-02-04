@@ -29,7 +29,7 @@ func PubBool(channel string, val bool) error {
 }
 
 //pub json encoded data
-func PubJson(channel string, val interface{}) error {
+func PubJson(channel string, val any) error {
 	if pub, ok := channelPubSub[channel]; ok {
 		return pub.PubJson(val)
 	}

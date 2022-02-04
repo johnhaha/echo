@@ -20,7 +20,7 @@ func (v *Value) GetBool() bool {
 	return v.Data == BoolTrue
 }
 
-func (v *Value) GetJsonData(data interface{}) error {
+func (v *Value) GetJsonData(data any) error {
 	err := json.Unmarshal([]byte(v.Data), data)
 	return err
 }
@@ -39,11 +39,25 @@ func (v *Value) SetBool(data bool) *Value {
 	return v
 }
 
-func (v *Value) SetJson(data interface{}) error {
+func (v *Value) SetJson(data any) error {
 	d, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 	v.SetValue(string(d))
 	return nil
+}
+
+type ChannelData struct {
+	Value
+	Channel string
+}
+
+func GetChannelDataFromJson(j string) (*ChannelData, error) {
+	var channelData ChannelData
+	err := json.Unmarshal([]byte(j), &channelData)
+	if err != nil {
+		return nil, err
+	}
+	return &channelData, nil
 }

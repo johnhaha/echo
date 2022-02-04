@@ -22,7 +22,7 @@ func SetBoolValue(k string, v bool) {
 	valueMtx.Unlock()
 }
 
-func SetJsonValue(k string, data interface{}) error {
+func SetJsonValue(k string, data any) error {
 	value := NewValue()
 	err := value.SetJson(data)
 	if err != nil {
@@ -52,7 +52,7 @@ func GetBoolValue(k string) (bool, error) {
 	return false, errNotFound
 }
 
-func GetJsonValue(k string, data interface{}) error {
+func GetJsonValue(k string, data any) error {
 	valueMtx.RLock()
 	defer valueMtx.RUnlock()
 	if v, ok := valueMap[k]; ok {

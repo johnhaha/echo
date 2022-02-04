@@ -48,7 +48,7 @@ func AddLoopTimerEvent(channel string, data string, time time.Time, loop int64) 
 }
 
 //add json data to timer heap
-func AddJsonDataToTimerEvent(channel string, data interface{}, time time.Time) error {
+func AddJsonDataToTimerEvent(channel string, data any, time time.Time) error {
 	v := NewValue()
 	err := v.SetJson(data)
 	if err != nil {
@@ -62,11 +62,6 @@ func AddJsonDataToTimerEvent(channel string, data interface{}, time time.Time) e
 	addTimerEvent(event)
 	return nil
 }
-
-//set timer heap handler
-// func SetEventHandler(channel string, handler JobHandler) {
-// 	echoTimerHeap.Set(channel, handler)
-// }
 
 //run timer heap, this will block
 func StartTimerEventListener(ctx context.Context) {

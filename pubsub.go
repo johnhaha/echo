@@ -14,7 +14,7 @@ type pubSub struct {
 	Rmt   sync.RWMutex
 }
 
-func (pb *pubSub) PubJson(data interface{}) error {
+func (pb *pubSub) PubJson(data any) error {
 	val, err := json.Marshal(data)
 	if err != nil {
 		return err

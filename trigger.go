@@ -41,7 +41,7 @@ func (trigger *Trigger) Listen(ctx context.Context) {
 func (trigger *Trigger) Done(key string) {
 	trigger.Mtx.Lock()
 	defer trigger.Mtx.Unlock()
-	trigger.Set(key, func(sc *SubCtx) {
+	trigger.Set(key, func(_ *SubCtx) {
 		log.Println("🔥 trigger has been fired")
 	})
 }

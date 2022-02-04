@@ -15,12 +15,6 @@ func SetEventBuffer(b int) {
 	echoChannelQueue = NewChannelQueue(b)
 }
 
-// echo just one router
-//set queue handler
-// func SetQueueHandler(channel string, handler JobHandler) {
-// 	echoChannelQueue.Set(channel, handler)
-// }
-
 //pub string data to queue
 func PubEvent(channel string, data string) {
 	echoChannelQueue.Pub(ChannelData{
@@ -32,7 +26,7 @@ func PubEvent(channel string, data string) {
 }
 
 //pub json data to queue
-func PubEventJson(channel string, data interface{}) error {
+func PubEventJson(channel string, data any) error {
 	v := NewValue()
 	err := v.SetJson(data)
 	if err != nil {
