@@ -63,9 +63,9 @@ func AddJsonDataToTimerEvent(channel string, data any, time time.Time) error {
 	return nil
 }
 
-//run timer heap, this will block
-func StartTimerEventListener(ctx context.Context) {
-	sleeper := NewSleeper(time.Second*5, time.Second*300)
+//run timer heap, this will block, sleep step is 5 second, max sleep should be bigger than 5 second
+func StartTimerEventListener(ctx context.Context, maxSleep time.Duration) {
+	var sleeper = NewSleeper(time.Second*5, maxSleep)
 	go func() {
 		for {
 			now := time.Now().Unix()

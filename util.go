@@ -1,6 +1,8 @@
 package echo
 
-import "time"
+import (
+	"time"
+)
 
 type Sleeper struct {
 	Duration time.Duration
