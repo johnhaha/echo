@@ -2,14 +2,17 @@ package echo
 
 import (
 	"encoding/json"
+	"time"
 )
 
 type Value struct {
 	Data string
+	//created at timestamp
+	Ts int64
 }
 
 func NewValue() *Value {
-	return &Value{}
+	return &Value{Ts: time.Now().Unix()}
 }
 
 func (v *Value) GetData() string {
@@ -46,6 +49,10 @@ func (v *Value) SetJson(data any) error {
 	}
 	v.SetValue(string(d))
 	return nil
+}
+
+func (v *Value) SetTime(ts int64) {
+	v.Ts = ts
 }
 
 type ChannelData struct {
