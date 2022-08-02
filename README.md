@@ -1,12 +1,12 @@
 # echo
 
-echo is a golang runtime message tool
-currently support pub/sub
+echo is a golang message tool
+currently support pub/sub and time job
 
 ## Install
 
 ```bash
-go get github.com/johnhaha/echo@v0.2.4
+go get github.com/johnhaha/echo@v0.2.5
 ```
 
 ## Usage
