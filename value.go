@@ -6,6 +6,7 @@ import (
 )
 
 type Value struct {
+	ID   string
 	Data string
 	//created at timestamp
 	Ts int64

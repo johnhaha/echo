@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-//pub sub staleless single block
+// pub sub stateless single block
 type PubSub[T any] struct {
 	//use map chan to support multiple subscription
 	Pools map[string]chan T
@@ -16,7 +16,7 @@ func NewPubSub[T any]() *PubSub[T] {
 	return &PubSub[T]{}
 }
 
-//publish data
+// publish data
 func (pb *PubSub[T]) Pub(data T) error {
 	pb.Rmt.Lock()
 	defer pb.Rmt.Unlock()
@@ -31,7 +31,7 @@ func (pb *PubSub[T]) Pub(data T) error {
 	return nil
 }
 
-//register subscriber with id and sub
+// register subscriber with id and sub
 func (pb *PubSub[T]) Sub(ctx context.Context, group string, buffer int, consumer func(T)) {
 	pool := make(chan T, buffer)
 	pb.Rmt.Lock()

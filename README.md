@@ -1,38 +1,56 @@
 # echo
 
-echo is a golang message tool
-currently support pub/sub and time job
+echo is a golang event message tool
+support pub/sub, time job and trigger
 
 ## Install
 
 ```bash
-go get github.com/johnhaha/echo@v0.2.5
+go get github.com/johnhaha/echo@v0.2.6
 ```
 
 ## Usage
 
+### set up handler
+
+```go
+echo.SetEventHandler(CHANNEL,HANDLER)
+```
+
 ### Pub
 
 ```go
-echo.Pub(CHANNEL,CONTENT)
+echo.PubEvent(CHANNEL,CONTENT)
 ```
 
 ### Pub Json
 
 ```go
-echo.PubJson(CHANNEL,JSON)
+echo.PubEventJson(CHANNEL,JSON)
 ```
 
-### Sub
+### Listen to event
 
 ```go
-echo.Sub(CONTEXT,CHANNEL,HANDLER)
+echo.StartEventListener(CONTEXT)
 ```
 
-## use suber to make multi sub
+### use pubsub to make multi sub
 
 ```go
-suber := echo.NewSuber()
-suber.Add(CHANNEL,CONSUMER)
-suber.Sub(ctx)
+suber := echo.NewPubSub()
+suber.Pub(DATA)
+suber.Sub(ctx,GROUP,CONSUMER)
+```
+
+### set up timer event storage
+
+```go
+echo.SetStorage(storage)
+```
+
+the timer event will be load if you load timer event after you set storage
+
+```go
+echo.LoadTimerEvent()
 ```
