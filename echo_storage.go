@@ -32,6 +32,10 @@ func LoadTimerEvent() error {
 			if err != nil {
 				return err
 			}
+			//loop event run only ones if stored
+			if e.Loop > 0 {
+				e.Loop = 0
+			}
 			event[i] = *e
 		}
 		AddManyTimerEvent(event)
@@ -40,6 +44,10 @@ func LoadTimerEvent() error {
 }
 
 func storeTimerEvent(event *TimerEvent) error {
+	//will not store loop event
+	if event.Loop > 0 {
+		return nil
+	}
 	if storage == nil {
 		return nil
 	}

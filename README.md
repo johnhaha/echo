@@ -6,7 +6,7 @@ support pub/sub, time job and trigger
 ## Install
 
 ```bash
-go get github.com/johnhaha/echo@v0.2.6
+go get github.com/johnhaha/echo@v0.2.7
 ```
 
 ## Usage
