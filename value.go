@@ -34,6 +34,11 @@ func (v *Value) SetValue(data string) *Value {
 	return v
 }
 
+func (v *Value) SetID(id string) *Value {
+	v.ID = id
+	return v
+}
+
 func (v *Value) SetBool(data bool) *Value {
 	s := BoolFalse
 	if data {

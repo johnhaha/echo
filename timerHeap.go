@@ -42,6 +42,23 @@ func (h *TimerEventHeap) Insert(event TimerEvent) {
 	h.Update()
 }
 
+func (h *TimerEventHeap) UpdateEvent(event TimerEvent) bool {
+	var index int = -1
+	for i, v := range h.Event {
+		if v.ID != "" && v.ID == event.ID {
+			index = i
+			break
+		}
+	}
+	if index >= 0 {
+		h.Event[index] = event
+		heap.Fix(h, index)
+		h.Update()
+		return true
+	}
+	return false
+}
+
 func (h *TimerEventHeap) Extract() (TimerEvent, error) {
 	x := heap.Pop(h)
 	h.Update()
@@ -68,9 +85,7 @@ func (h *TimerEventHeap) Update() {
 }
 
 // apply to heap interface 👇
-
 func (h TimerEventHeap) Len() int {
-
 	return len(h.Event)
 }
 
@@ -88,11 +103,11 @@ func (h TimerEventHeap) Swap(i, j int) {
 	h.Event[i], h.Event[j] = h.Event[j], h.Event[i]
 }
 
-func (h *TimerEventHeap) Push(x interface{}) {
+func (h *TimerEventHeap) Push(x any) {
 	h.Event = append(h.Event, x.(TimerEvent))
 }
 
-func (h *TimerEventHeap) Pop() interface{} {
+func (h *TimerEventHeap) Pop() any {
 	old := h.Event
 	n := len(h.Event)
 	x := old[n-1]

@@ -68,7 +68,7 @@ func storeTimerEvent(event *TimerEvent) error {
 }
 
 func storeManyTimerEvent(event []TimerEvent) error {
-	for i := 0; i < len(event); i++ {
+	for i := range event {
 		err := storeTimerEvent(&event[i])
 		if err != nil {
 			return err

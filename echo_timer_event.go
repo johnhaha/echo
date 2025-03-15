@@ -10,6 +10,18 @@ var echoTimerHeap = NewTimerHeap()
 
 var heapMtx sync.RWMutex
 
+type TimerEventConfig func(*TimerEvent)
+
+func getTimerEventID(id string) string {
+	return "timer_event_" + id
+}
+
+func SetTimeEventID(id string) func(*TimerEvent) {
+	return func(te *TimerEvent) {
+		te.ID = getTimerEventID(id)
+	}
+}
+
 // echo just one router
 func addTimerEvent(event TimerEvent) error {
 	heapMtx.Lock()
@@ -20,6 +32,16 @@ func addTimerEvent(event TimerEvent) error {
 	}
 	echoTimerHeap.Insert(event)
 	return nil
+}
+
+func updateTimerEvent(event TimerEvent) bool {
+	heapMtx.Lock()
+	defer heapMtx.Unlock()
+	err := storeTimerEvent(&event)
+	if err != nil {
+		return false
+	}
+	return echoTimerHeap.UpdateEvent(event)
 }
 
 // add many event to timer heap, can be used in initializing heap data
@@ -38,14 +60,28 @@ func AddManyTimerEvent(event []TimerEvent) error {
 }
 
 // add channel and data to timer heap
-func AddTimerEvent(channel string, data string, time time.Time) {
+func AddTimerEvent(channel string, data string, time time.Time, config ...TimerEventConfig) {
 	v := NewValue().SetValue(data)
 	event := TimerEvent{
 		Value:     *v,
 		EventType: channel,
 		Ts:        time.Unix(),
 	}
+	for _, c := range config {
+		c(&event)
+	}
 	addTimerEvent(event)
+}
+
+// update event data with ID, return true if updated successfully
+func UpdateTimerEvent(id string, channel string, data string, time time.Time) bool {
+	v := NewValue().SetValue(data).SetID(getTimerEventID(id))
+	event := TimerEvent{
+		Value:     *v,
+		EventType: channel,
+		Ts:        time.Unix(),
+	}
+	return updateTimerEvent(event)
 }
 
 // add loop timer event, loop in second
